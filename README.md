@@ -1,24 +1,54 @@
-Differential Cryptanalysis of Scan-C
+## 1. Automated Differential Search with CryptoSMT
 
-This repository contains the experimental verification of a 3-round differential trail and its success probability for the Scan-C block cipher.
+To search for differential characteristics using SMT solvers, we utilize the [CryptoSMT](https://github.com/kste/cryptosmt) framework.
 
-Project Overview
-The primary goal of this project is to validate the theoretical differential characteristics of Scan-C through empirical simulation. By analyzing a high volume of plaintext pairs, we demonstrate that the observed propagation of differences aligns with predicted mathematical models.
+**Setup:**
 
-Methodology
-To verify the 3-round differential trail, the following process was implemented:
+1. Clone the CryptoSMT repository:
+```bash
+git clone https://github.com/kste/cryptosmt
 
-Pair Generation: A large sample of plaintext pairs was generated, specifically satisfying the chosen input difference (ΔP).
+```
 
-Round Key Simulation: Each round of the 3-round Scan-C encryption was assigned a unique, randomly generated 16-bit key to ensure the results are key-independent.
+2. Copy `scanc_smt.py` from this repository into the `ciphers/` directory of the cloned CryptoSMT folder.
+3. Register the new cipher by adding `scanc` to the main `cryptosmt.py` configuration.
 
-Encryption: Both plaintexts in each pair were encrypted through 3 rounds of the cipher.
+**Execution:**
 
-Difference Analysis: The output difference (ΔC) of each ciphertext pair was calculated and compared against the target output differential.
+* To find a standard differential trail for 3 rounds:
+```bash
+python3 cryptosmt.py --cipher scanc --rounds 3 --wordsize 16
 
-Probability Calculation: The empirical probability was derived by calculating the ratio of "hits" (pairs matching the target output difference) to the total number of trials.
+```
 
-Key Findings
-Empirical Success: The experimental results confirm the validity of the differential trail.
 
-Theoretical Alignment: The measured empirical probability closely matches the theoretical probability, providing strong evidence for the correctness of the cryptanalytic model.
+* To search for a **differential cluster** (multiple trails sharing the same input/output differences), use mode 4:
+```bash
+python3 cryptosmt.py --cipher scanc --mode 4 --rounds 3 --wordsize 16
+
+```
+
+
+*(Note: Change the number of rounds as needed).*
+
+
+
+### 2. Empirical Verification
+
+The file `diff_scanc.py` is a standalone script used to verify the theoretical trails found by the SMT solver.
+
+**How it works:**
+
+* It generates millions of plaintext pairs satisfying the input difference .
+* It performs a full 3-round encryption using independent, random 16-bit round keys.
+* It counts the occurrences where the output difference matches the target .
+* Finally, it calculates the **experimental success probability** (), allowing for a direct comparison with the theoretical probability to ensure the trail's accuracy.
+
+**To run the verification:**
+
+```bash
+python3 diff_scanc.py
+
+```
+
+
