@@ -34,15 +34,15 @@ def F_function(val):
 
 # --  Scan-C Round Encryption --
 def encrypt_round(p1, p2, p3, p4, k1):
-    # R1-1 = P1-1 ^ K1
-    r_1_1 = p1 ^ k1
+    # R1-1 = P1-1 XNOR K1
+    r_1_1 = ~(p1 ^ k1) & 0xFFFF
     ef_l1 = F_function(r_1_1)
     
     # R1-2 = Ef_l1 ^ P1-3
     r_1_2 = ef_l1 ^ p3
     
-    # R1-4 = P1-4 ^ K1
-    r_1_4 = p4 ^ k1
+    # R1-4 = P1-4 XNOR K1
+    r_1_4 = ~(p4 ^ k1) & 0xFFFF
     ef_r1 = F_function(r_1_4)
     
     # R1-3 = Ef_r1 ^ P1-2
